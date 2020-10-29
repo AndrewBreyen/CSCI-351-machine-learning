@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
+#include <math.h>
 
 
 int main(int argc, char *argv[])
@@ -27,20 +28,40 @@ int main(int argc, char *argv[])
       }
     }
 
-    printf("%zu %zu\n", numOfViewers, numOfMovies);
+
+
+    double * const userRating = malloc(numOfMovies*sizeof(*userRating));
+    assert(userRating);
+
+    for (size_t j = 0; j<numOfMovies-1; j++){
+      printf("Enter rating for movie %zu: ", j+1);
+      scanf("%lf", &userRating[j]);
+    }
+
+    double * const distance = calloc(numOfViewers, sizeof(*distance));
+    assert(distance);
 
     for (size_t i = 0; i<numOfViewers; i++){
-      for (size_t j=0; j<numOfMovies-1; j++){
-        printf("%.1lf ", ratings[i*numOfMovies+j]);
+      for (size_t j = 0; j<numOfMovies-1; j++){
+        distance[i] += fabs(userRating[j] - ratings[i*numOfMovies + j]);
       }
-      printf("%.1lf\n", ratings[i*numOfMovies+numOfMovies-1]);
     }
+
+    printf("ID     Distance\n");
+    printf("****************\n");
+
+    for (size_t i = 0;  i < numOfViewers ;   i++){
+      printf("%9zu      %8.1lf\n", i+1, distance[i]);
+    }
+    printf("****************\n");
 
 
     int const ret = fclose(fp); // closing file
     assert(!ret);
 
     free(ratings);
+    free(userRating);
+    free(distance);
 
     return 0;
  }
