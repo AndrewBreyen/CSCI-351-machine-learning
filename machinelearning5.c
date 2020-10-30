@@ -29,38 +29,37 @@ int main(int argc, char *argv[])
     }
 
 
-    //allocates more memory: for storage of user input
+
     double * const userRating = malloc(numOfMovies*sizeof(*userRating));
     assert(userRating);
 
-    //user input
     for (size_t j = 0; j<numOfMovies-1; j++){
       printf("Enter rating for movie %zu: ", j+1);
       scanf("%lf", &userRating[j]);
     }
 
-    //allocate memory to store distances
-    double * distance = calloc(numOfViewers, sizeof(*distance));
-
-    //make sure allocation worked
+    double * const distance = calloc(numOfViewers, sizeof(*distance));
     assert(distance);
 
-    //compute the distances
-    //i=viewers; j=movies
+    //find distance
     for (size_t i = 0; i<numOfViewers; i++){
       for (size_t j = 0; j<numOfMovies-1; j++){
-        //distance[i] = fabs(ratings[i*numOfMovies+j]-userRating[j]);
         distance[i] += fabs(userRating[j] - ratings[i*numOfMovies + j]);
       }
     }
 
-    printf("ID     Distance\n");
-    printf("****************\n");
-
-    for (size_t i = 0;  i < numOfViewers ;   i++){
-      printf("%9zu      %8.1lf\n", i+1, distance[i]);
+    //find min Distance
+    double minDist = distance[0];
+    size_t minI=0;
+    for (size_t i = 1 ; i < numOfViewers; i++){
+      if (distance[i]<minDist){
+        minDist = distance[i];
+        minI=i;
+      }
     }
-    printf("****************\n");
+
+  printf("The most similar viewer was viewer #%zu and the distance calculated was %.1lf.\n", minI+1, minDist);
+  printf("the predicted rating for movie 5 is %.1lf.\n", ratings[minI*numOfMovies+(numOfMovies-1)]);
 
 
     int const ret = fclose(fp); // closing file

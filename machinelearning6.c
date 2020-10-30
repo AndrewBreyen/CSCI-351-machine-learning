@@ -4,8 +4,28 @@
 #include <math.h>
 
 
-int main(int argc, char *argv[])
- {
+struct distance_metric{
+  size_t viewer_id;
+  double distance;
+}
+
+
+static int cmp(const void * ap, const void * bp) {
+  struct distance_metric const a = *((struct distance_method*)ap);
+  struct distance_metric const b = *((struct distance_method*)bp);
+
+  if (a.distance<b.distance) {
+    return -1;
+  }
+  else if (a.distance==b.distance) {
+    return 0;
+  }
+  else {
+    return 1;
+  }
+}
+
+int main(int argc, char *argv[]) {
     size_t numOfViewers,numOfMovies;
 
 
@@ -29,31 +49,26 @@ int main(int argc, char *argv[])
     }
 
 
-    //allocates more memory: for storage of user input
+
     double * const userRating = malloc(numOfMovies*sizeof(*userRating));
     assert(userRating);
 
-    //user input
     for (size_t j = 0; j<numOfMovies-1; j++){
       printf("Enter rating for movie %zu: ", j+1);
       scanf("%lf", &userRating[j]);
     }
 
-    //allocate memory to store distances
-    double * distance = calloc(numOfViewers, sizeof(*distance));
-
-    //make sure allocation worked
+    double * const distance = calloc(numOfViewers, sizeof(*distance));
     assert(distance);
 
-    //compute the distances
-    //i=viewers; j=movies
+    //find distance
     for (size_t i = 0; i<numOfViewers; i++){
       for (size_t j = 0; j<numOfMovies-1; j++){
-        //distance[i] = fabs(ratings[i*numOfMovies+j]-userRating[j]);
         distance[i] += fabs(userRating[j] - ratings[i*numOfMovies + j]);
       }
     }
 
+    //print distances
     printf("ID     Distance\n");
     printf("****************\n");
 
@@ -61,6 +76,18 @@ int main(int argc, char *argv[])
       printf("%9zu      %8.1lf\n", i+1, distance[i]);
     }
     printf("****************\n");
+
+
+    //sort!
+    qsort(distance, numOfViewers, sizeof(*distance), &cmp);
+
+    for (size_t i = 0; i < numOfViewers; i++){
+      printf("distance[%zu] = %lf\n", i, distance[i]);
+    }
+
+
+  printf("The most similar viewer was viewer #%zu and the distance calculated was %.1lf.\n",);
+  printf("the predicted rating for movie 5 is %.1lf.\n", ratings[minI*numOfMovies+(numOfMovies-1)]);
 
 
     int const ret = fclose(fp); // closing file
